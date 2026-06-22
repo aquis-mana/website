@@ -4,10 +4,16 @@ import EventCalendar from '../../components/EventCalendar.astro'
 import RsvpOverlay from '../../components/RsvpOverlay.astro'
 import { useTranslations } from '../../i18n/index'
 import { getAdapter } from '../../adapters/calendar'
+import type { CalendarEvent } from '../../adapters/calendar'
 
 const t = useTranslations('en')
-const adapter = await getAdapter()
-const events = await adapter.getUpcomingEvents()
+let events: CalendarEvent[] = []
+try {
+  const adapter = await getAdapter()
+  events = await adapter.getUpcomingEvents()
+} catch (err) {
+  console.error('Failed to load events:', err)
+}
 ---
 
 <Base title="Home" lang="en">
