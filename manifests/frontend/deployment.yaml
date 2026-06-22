@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: container-registry.moellemann.net/aquismana-website:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4321
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+          env:
+            - name: DIRECTUS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: directus-secret
+                  key: static-token
+            - name: TURNSTILE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: directus-secret
+                  key: turnstile-secret
+          # livenessProbe:
+          #   httpGet:
+          #     path: /healthz
+          #     port: 4321
+          #   initialDelaySeconds: 15
+          #   periodSeconds: 30

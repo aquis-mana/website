@@ -1,0 +1,55 @@
+---
+import '../styles/global.css'
+import { useTranslations } from '../i18n/index'
+
+interface Props {
+  title: string
+  lang?: 'de' | 'en'
+}
+
+const { title, lang = 'de' } = Astro.props
+const t = useTranslations(lang)
+const altLang = lang === 'de' ? 'en' : 'de'
+const altHref = lang === 'de' ? '/en' + Astro.url.pathname : Astro.url.pathname.replace(/^\/en/, '') || '/'
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="alternate" hreflang={altLang} href={altHref} />
+    <title>{title} — Aquis Mana e.V.</title>
+  </head>
+  <body class="bg-white text-navy min-h-screen flex flex-col">
+    <header class="bg-navy text-white">
+      <nav class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href={lang === 'en' ? '/en' : '/'} class="flex items-center gap-3">
+          <img src="/logo.jpeg" alt="Aquis Mana" class="h-10 w-10 rounded-full" />
+          <span class="font-bold text-lg tracking-wide">Aquis Mana</span>
+        </a>
+        <ul class="flex gap-6 text-sm font-medium">
+          <li><a href={lang === 'en' ? '/en' : '/'} class="hover:text-blue-accent transition-colors">{t('nav.home')}</a></li>
+          <li><a href={lang === 'en' ? '/en/ueber-uns' : '/ueber-uns'} class="hover:text-blue-accent transition-colors">{t('nav.about')}</a></li>
+          <li><a href={lang === 'en' ? '/en/mitgliedschaft' : '/mitgliedschaft'} class="hover:text-blue-accent transition-colors">{t('nav.membership')}</a></li>
+          <li><a href={lang === 'en' ? '/en/dokumente' : '/dokumente'} class="hover:text-blue-accent transition-colors">{t('nav.documents')}</a></li>
+          <li><a href={altHref} class="text-blue-accent hover:underline text-xs uppercase tracking-wider">{altLang.toUpperCase()}</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="bg-navy text-white text-sm mt-12">
+      <div class="max-w-5xl mx-auto px-4 py-6 flex justify-between items-center">
+        <span>© {new Date().getFullYear()} Aquis Mana e.V.</span>
+        <div class="flex gap-4">
+          <a href="https://www.instagram.com/aquis.mana" class="hover:text-blue-accent transition-colors">{t('footer.instagram')}</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

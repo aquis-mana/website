@@ -1,0 +1,285 @@
+---
+import { useTranslations } from '../i18n/index'
+
+interface Props {
+  lang?: 'de' | 'en'
+}
+
+const { lang = 'de' } = Astro.props
+const t = useTranslations(lang)
+---
+
+<!-- Overlay backdrop -->
+<div
+  id="rsvp-overlay"
+  class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 relative">
+    <button
+      id="rsvp-close"
+      class="absolute top-4 right-4 text-gray-400 hover:text-navy text-2xl leading-none"
+      aria-label={t('rsvp.close')}
+    >&times;</button>
+
+    <h2 class="text-xl font-bold text-navy mb-4">{t('rsvp.heading')}</h2>
+
+    <!-- Warning banner (hidden by default) -->
+    <div
+      id="rsvp-warning"
+      class="hidden mb-4 p-3 rounded-lg text-sm font-medium"
+      data-near-full-text={t('rsvp.warning.nearFull')}
+      data-full-text={t('rsvp.warning.full')}
+    ></div>
+
+    <!-- New RSVP form (shown when no prior RSVP) -->
+    <form id="rsvp-new-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="rsvp-name">
+          {t('rsvp.name')}
+        </label>
+        <input
+          id="rsvp-name"
+          type="text"
+          required
+          maxlength="100"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-accent"
+        />
+      </div>
+
+      <div class="flex gap-3">
+        <label class="flex-1 cursor-pointer">
+          <input type="radio" name="rsvp-status" value="yes" class="sr-only peer" />
+          <div class="border-2 rounded-lg p-3 text-center font-semibold transition-colors border-gray-200 peer-checked:border-blue-accent peer-checked:bg-blue-50 peer-checked:text-navy">
+            {t('rsvp.yes')}
+          </div>
+        </label>
+        <label class="flex-1 cursor-pointer">
+          <input type="radio" name="rsvp-status" value="maybe" class="sr-only peer" />
+          <div class="border-2 rounded-lg p-3 text-center font-semibold transition-colors border-gray-200 peer-checked:border-blue-accent peer-checked:bg-blue-50 peer-checked:text-navy">
+            {t('rsvp.maybe')}
+          </div>
+        </label>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-navy text-white py-2.5 rounded-lg font-semibold hover:bg-blue-accent transition-colors"
+      >
+        {t('rsvp.submit')}
+      </button>
+    </form>
+
+    <!-- Returning user view (shown when prior RSVP exists) -->
+    <div id="rsvp-existing" class="hidden space-y-4" data-yes-label={t('rsvp.yes')} data-maybe-label={t('rsvp.maybe')}>
+      <p class="text-sm text-gray-600">
+        {t('rsvp.currentStatus')}: <strong id="rsvp-current-status-label"></strong>
+      </p>
+      <div class="flex gap-3">
+        <button
+          id="rsvp-switch-yes"
+          class="flex-1 border-2 border-gray-200 rounded-lg p-3 text-center font-semibold hover:border-blue-accent transition-colors"
+        >{t('rsvp.yes')}</button>
+        <button
+          id="rsvp-switch-maybe"
+          class="flex-1 border-2 border-gray-200 rounded-lg p-3 text-center font-semibold hover:border-blue-accent transition-colors"
+        >{t('rsvp.maybe')}</button>
+      </div>
+      <button
+        id="rsvp-cancel-btn"
+        class="w-full border-2 border-red-200 text-red-600 py-2.5 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+      >
+        {t('rsvp.cancel')}
+      </button>
+    </div>
+
+    <p id="rsvp-error" class="hidden mt-3 text-sm text-red-600">{t('rsvp.error.generic')}</p>
+  </div>
+</div>
+
+<script>
+  const STORAGE_PREFIX = 'rsvp_'
+
+  const overlay = document.getElementById('rsvp-overlay')!
+  const closeBtn = document.getElementById('rsvp-close')!
+  const warningEl = document.getElementById('rsvp-warning')!
+  const newForm = document.getElementById('rsvp-new-form') as HTMLFormElement
+  const existingView = document.getElementById('rsvp-existing')!
+  const currentStatusLabel = document.getElementById('rsvp-current-status-label')!
+  const switchYes = document.getElementById('rsvp-switch-yes')!
+  const switchMaybe = document.getElementById('rsvp-switch-maybe')!
+  const cancelBtn = document.getElementById('rsvp-cancel-btn')!
+  const errorEl = document.getElementById('rsvp-error')!
+
+  let currentEventId = ''
+
+  function storageKey(eventId: string) {
+    return STORAGE_PREFIX + eventId
+  }
+
+  function getToken(eventId: string): string | null {
+    return localStorage.getItem(storageKey(eventId))
+  }
+
+  function setToken(eventId: string, token: string) {
+    localStorage.setItem(storageKey(eventId), token)
+  }
+
+  function clearToken(eventId: string) {
+    localStorage.removeItem(storageKey(eventId))
+  }
+
+  function generateToken(): string {
+    return crypto.randomUUID()
+  }
+
+  function openOverlay(eventId: string, isNearFull: boolean, isOverFull: boolean) {
+    currentEventId = eventId
+    errorEl.classList.add('hidden')
+
+    // Warning banner
+    if (isOverFull) {
+      warningEl.textContent = warningEl.dataset.fullText ?? ''
+      warningEl.className = 'mb-4 p-3 rounded-lg text-sm font-medium bg-red-50 text-red-700'
+    } else if (isNearFull) {
+      warningEl.textContent = warningEl.dataset.nearFullText ?? ''
+      warningEl.className = 'mb-4 p-3 rounded-lg text-sm font-medium bg-yellow-50 text-yellow-700'
+    } else {
+      warningEl.className = 'hidden mb-4 p-3 rounded-lg text-sm font-medium'
+    }
+
+    const existingToken = getToken(eventId)
+    if (existingToken) {
+      showExistingView(existingToken)
+    } else {
+      newForm.classList.remove('hidden')
+      existingView.classList.add('hidden')
+    }
+
+    overlay.classList.remove('hidden')
+    document.body.style.overflow = 'hidden'
+  }
+
+  function closeOverlay() {
+    overlay.classList.add('hidden')
+    document.body.style.overflow = ''
+    newForm.reset()
+  }
+
+  function showExistingView(token: string) {
+    newForm.classList.add('hidden')
+    existingView.classList.remove('hidden')
+    // Fetch current status from the API to display accurate label
+    fetch(`/api/rsvp/${token}`, { method: 'GET' })
+      .then((res) => {
+        if (res.ok) return res.json()
+        return null
+      })
+      .then((data) => {
+        if (data?.status) {
+          const yesLabel = existingView.dataset.yesLabel ?? 'Ja'
+          const maybeLabel = existingView.dataset.maybeLabel ?? 'Vielleicht'
+          currentStatusLabel.textContent = data.status === 'yes' ? yesLabel : maybeLabel
+        }
+      })
+      .catch(() => {})
+  }
+
+  // Trigger buttons on event cards
+  document.querySelectorAll<HTMLButtonElement>('.rsvp-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest<HTMLElement>('[data-event-id]')!
+      const eventId = btn.dataset.eventId ?? card.dataset.eventId ?? ''
+      const isNearFull = card.dataset.statsNearFull === 'true'
+      const isOverFull = card.dataset.statsOverFull === 'true'
+      openOverlay(eventId, isNearFull, isOverFull)
+    })
+  })
+
+  closeBtn.addEventListener('click', closeOverlay)
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeOverlay()
+  })
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeOverlay()
+  })
+
+  // New RSVP form submit
+  newForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    errorEl.classList.add('hidden')
+
+    const name = (document.getElementById('rsvp-name') as HTMLInputElement).value.trim()
+    const statusRadio = newForm.querySelector<HTMLInputElement>('input[name="rsvp-status"]:checked')
+    const status = statusRadio?.value
+    const captchaEl = document.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')
+    const captchaToken = captchaEl?.value ?? ''
+
+    if (!name || !status) return
+    if (!captchaToken) {
+      errorEl.classList.remove('hidden')
+      return
+    }
+
+    const visitorToken = generateToken()
+
+    try {
+      const res = await fetch('/api/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: currentEventId,
+          name,
+          status,
+          visitorToken,
+          captchaToken,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      setToken(currentEventId, visitorToken)
+      closeOverlay()
+      // Reload page to update stats
+      window.location.reload()
+    } catch {
+      errorEl.classList.remove('hidden')
+    }
+  })
+
+  // Switch status buttons
+  async function switchStatus(status: 'yes' | 'maybe') {
+    const token = getToken(currentEventId)
+    if (!token) return
+    errorEl.classList.add('hidden')
+    try {
+      const res = await fetch(`/api/rsvp/${token}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      closeOverlay()
+      window.location.reload()
+    } catch {
+      errorEl.classList.remove('hidden')
+    }
+  }
+
+  switchYes.addEventListener('click', () => switchStatus('yes'))
+  switchMaybe.addEventListener('click', () => switchStatus('maybe'))
+
+  cancelBtn.addEventListener('click', async () => {
+    const token = getToken(currentEventId)
+    if (!token) return
+    errorEl.classList.add('hidden')
+    try {
+      const res = await fetch(`/api/rsvp/${token}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed')
+      clearToken(currentEventId)
+      closeOverlay()
+      window.location.reload()
+    } catch {
+      errorEl.classList.remove('hidden')
+    }
+  })
+</script>

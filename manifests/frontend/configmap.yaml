@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  HOST: "0.0.0.0"
+  CALENDAR_SOURCE: "directus"
+  DIRECTUS_URL: "http://directus:8055"
+  PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAADoWbB9LfqX6jMbE"

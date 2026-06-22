@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro'
+import EventCalendar from '../components/EventCalendar.astro'
+import RsvpOverlay from '../components/RsvpOverlay.astro'
+import { useTranslations } from '../i18n/index'
+import { getAdapter } from '../adapters/calendar'
+import type { CalendarEvent } from '../adapters/calendar'
+
+const siteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY ?? ''
+
+const t = useTranslations('de')
+let events: CalendarEvent[] = []
+try {
+  const adapter = await getAdapter()
+  events = await adapter.getUpcomingEvents()
+} catch (err) {
+  console.error('Failed to load events:', err)
+}
+---
+
+<Base title="Startseite" lang="de">
+  <div class="max-w-6xl mx-auto px-4 py-10">
+    <EventCalendar events={events} lang="de" />
+
+    <section class="mt-20 max-w-2xl">
+      <h2 class="text-2xl font-bold text-navy mb-4">{t('home.intro.heading')}</h2>
+      <p class="text-gray-700 leading-relaxed">{t('home.intro.body')}</p>
+    </section>
+  </div>
+
+  <!-- Turnstile explicit render: widget is ready before the RSVP overlay opens -->
+  <div class="flex justify-center py-6">
+    <div id="page-turnstile"></div>
+  </div>
+  <script is:inline define:vars={{ siteKey }}>
+    window._turnstileSiteKey = siteKey
+    window.onTurnstileLoad = function () {
+      turnstile.render('#page-turnstile', { sitekey: window._turnstileSiteKey, theme: 'light' })
+    }
+  </script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
+
+  <RsvpOverlay lang="de" />
+</Base>

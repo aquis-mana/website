@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "directus": "11.17.4",
+  "vendor": "postgres",
+  "collections": [
+    {
+      "collection": "events",
+      "meta": {
+        "icon": "event",
+        "display_template": "{{title}}",
+        "archive_field": "status",
+        "archive_value": "draft",
+        "unarchive_value": "published"
+      },
+      "schema": { "name": "events" }
+    },
+    {
+      "collection": "rsvps",
+      "meta": {
+        "icon": "how_to_reg",
+        "display_template": "{{name}} — {{status}}"
+      },
+      "schema": { "name": "rsvps" }
+    },
+    {
+      "collection": "pages",
+      "meta": {
+        "icon": "article",
+        "display_template": "{{slug}}",
+        "archive_field": "status",
+        "archive_value": "draft",
+        "unarchive_value": "published"
+      },
+      "schema": { "name": "pages" }
+    },
+    {
+      "collection": "documents",
+      "meta": {
+        "icon": "description",
+        "display_template": "{{title}}",
+        "sort_field": "sort"
+      },
+      "schema": { "name": "documents" }
+    }
+  ],
+  "fields": [
+    { "collection": "events", "field": "id",     "type": "uuid",     "meta": { "hidden": true, "readonly": true, "interface": "input", "special": ["uuid"] }, "schema": { "is_primary_key": true } },
+    { "collection": "events", "field": "title",  "type": "string",   "meta": { "interface": "input", "required": true }, "schema": {} },
+    { "collection": "events", "field": "description", "type": "text","meta": { "interface": "input-rich-text-html" }, "schema": { "is_nullable": true } },
+    { "collection": "events", "field": "date",   "type": "dateTime", "meta": { "interface": "datetime", "required": true }, "schema": {} },
+    { "collection": "events", "field": "location","type": "string",  "meta": { "interface": "input" }, "schema": { "is_nullable": true } },
+    { "collection": "events", "field": "image",  "type": "uuid",     "meta": { "interface": "file-image", "special": ["file"] }, "schema": { "is_nullable": true, "foreign_key_table": "directus_files", "foreign_key_column": "id" } },
+    { "collection": "events", "field": "capacity","type": "integer", "meta": { "interface": "input" }, "schema": { "is_nullable": true } },
+    { "collection": "events", "field": "capacity_warning_threshold", "type": "integer", "meta": { "interface": "input" }, "schema": { "is_nullable": true } },
+    { "collection": "events", "field": "status", "type": "string",   "meta": { "interface": "select-dropdown", "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] }, "required": true }, "schema": { "default_value": "draft" } },
+
+    { "collection": "rsvps", "field": "id",           "type": "uuid",     "meta": { "hidden": true, "readonly": true, "interface": "input", "special": ["uuid"] }, "schema": { "is_primary_key": true } },
+    { "collection": "rsvps", "field": "event_id",     "type": "string",   "meta": { "interface": "input", "required": true }, "schema": {} },
+    { "collection": "rsvps", "field": "name",         "type": "string",   "meta": { "interface": "input", "required": true }, "schema": {} },
+    { "collection": "rsvps", "field": "status",       "type": "string",   "meta": { "interface": "select-dropdown", "options": { "choices": [{ "text": "Ja", "value": "yes" }, { "text": "Vielleicht", "value": "maybe" }, { "text": "Abgemeldet", "value": "cancelled" }] }, "required": true }, "schema": {} },
+    { "collection": "rsvps", "field": "visitor_token","type": "string",   "meta": { "interface": "input", "required": true }, "schema": {} },
+    { "collection": "rsvps", "field": "member_id",    "type": "string",   "meta": { "interface": "input" }, "schema": { "is_nullable": true } },
+    { "collection": "rsvps", "field": "date_created", "type": "timestamp","meta": { "hidden": true, "readonly": true, "special": ["date-created"] }, "schema": { "is_nullable": true } },
+    { "collection": "rsvps", "field": "date_updated", "type": "timestamp","meta": { "hidden": true, "readonly": true, "special": ["date-updated"] }, "schema": { "is_nullable": true } },
+
+    { "collection": "pages", "field": "id",      "type": "uuid",   "meta": { "hidden": true, "readonly": true, "interface": "input", "special": ["uuid"] }, "schema": { "is_primary_key": true } },
+    { "collection": "pages", "field": "slug",    "type": "string", "meta": { "interface": "input", "required": true }, "schema": { "is_unique": true } },
+    { "collection": "pages", "field": "title",   "type": "string", "meta": { "interface": "input", "required": true }, "schema": {} },
+    { "collection": "pages", "field": "content", "type": "text",   "meta": { "interface": "input-rich-text-html" }, "schema": { "is_nullable": true } },
+    { "collection": "pages", "field": "status",  "type": "string", "meta": { "interface": "select-dropdown", "options": { "choices": [{ "text": "Published", "value": "published" }, { "text": "Draft", "value": "draft" }] }, "required": true }, "schema": { "default_value": "draft" } },
+
+    { "collection": "documents", "field": "id",       "type": "uuid",    "meta": { "hidden": true, "readonly": true, "interface": "input", "special": ["uuid"] }, "schema": { "is_primary_key": true } },
+    { "collection": "documents", "field": "title",    "type": "string",  "meta": { "interface": "input", "required": true }, "schema": {} },
+    { "collection": "documents", "field": "file",     "type": "uuid",    "meta": { "interface": "file", "special": ["file"], "required": true }, "schema": { "foreign_key_table": "directus_files", "foreign_key_column": "id" } },
+    { "collection": "documents", "field": "category", "type": "string",  "meta": { "interface": "input" }, "schema": { "is_nullable": true } },
+    { "collection": "documents", "field": "sort",     "type": "integer", "meta": { "interface": "input", "hidden": true }, "schema": { "is_nullable": true } }
+  ],
+  "relations": [
+    {
+      "collection": "events",
+      "field": "image",
+      "related_collection": "directus_files",
+      "meta": { "sort_field": null },
+      "schema": { "on_delete": "SET NULL" }
+    },
+    {
+      "collection": "documents",
+      "field": "file",
+      "related_collection": "directus_files",
+      "meta": { "sort_field": null },
+      "schema": { "on_delete": "SET NULL" }
+    }
+  ]
+}

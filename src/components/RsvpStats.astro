@@ -1,0 +1,46 @@
+---
+import { useTranslations } from '../i18n/index'
+import type { RsvpStats } from '../lib/rsvp'
+
+interface Props {
+  stats: RsvpStats
+  lang?: 'de' | 'en'
+}
+
+const { stats, lang = 'de' } = Astro.props
+const t = useTranslations(lang)
+---
+
+<div class="flex items-center gap-2 text-sm">
+  {stats.capacity !== null ? (
+    <span class:list={[
+      'font-mono px-2 py-0.5 rounded text-xs font-semibold',
+      stats.isOverFull ? 'bg-red-100 text-red-700' :
+      stats.isNearFull ? 'bg-yellow-100 text-yellow-700' :
+      'bg-green-100 text-green-700'
+    ]}>
+      {stats.total} / {stats.capacity}
+    </span>
+  ) : (
+    <span class="font-mono text-xs text-gray-500">{stats.total} {t('events.attending')}</span>
+  )}
+
+  {stats.isOverFull && (
+    <span class="text-xs text-red-600 font-semibold">{t('events.full')}</span>
+  )}
+  {stats.isNearFull && !stats.isOverFull && (
+    <span class="text-xs text-yellow-600 font-semibold">{t('events.nearFull')}</span>
+  )}
+</div>
+
+{stats.isOverFull && (
+  <details class="mt-1 text-xs text-gray-500">
+    <summary class="cursor-pointer hover:text-navy">{t('events.priority.heading')}</summary>
+    <ol class="mt-1 ml-4 list-decimal space-y-0.5">
+      <li>{t('events.priority.membersYes')}</li>
+      <li>{t('events.priority.visitorsYes')}</li>
+      <li>{t('events.priority.membersMaybe')}</li>
+      <li>{t('events.priority.visitorsMaybe')}</li>
+    </ol>
+  </details>
+)}
