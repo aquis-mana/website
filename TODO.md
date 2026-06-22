@@ -8,4 +8,4 @@
 - [ ] **Make pages dynamic from Directus** — `Über uns` and `Mitgliedschaft` page content should be loaded from Directus `pages` collection instead of being hardcoded
 - [ ] **Kubernetes Job to initialize Directus collections** — create a one-shot Job that applies the Directus schema snapshot (`directus-schema.json`) on first deploy, so collections are set up without manual curl commands
 - [ ] **OIDC-based login for members** — add a member login using an OIDC provider running in the cluster; gate member-only content/pages behind authentication
-- [ ] **Hide the Cloudflare Turnstile banner** — the "Protected by Cloudflare" badge/banner should not be visible on the page; investigate CSS or widget config option to suppress it
+- [x] **Hide the Cloudflare Turnstile banner** — the "Protected by Cloudflare" badge/banner should not be visible on the page; investigate CSS or widget config option to suppress it
