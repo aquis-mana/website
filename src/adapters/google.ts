@@ -23,8 +23,8 @@ function mapGoogleEvent(item: GoogleEventItem): CalendarEvent {
 
 export class GoogleCalendarAdapter implements CalendarAdapter {
   private async fetchEvents(): Promise<CalendarEvent[]> {
-    const calendarId = encodeURIComponent(process.env.GOOGLE_CALENDAR_ID ?? '')
-    const apiKey = process.env.GOOGLE_CALENDAR_API_KEY
+    const calendarId = encodeURIComponent(import.meta.env.GOOGLE_CALENDAR_ID ?? '')
+    const apiKey = import.meta.env.GOOGLE_CALENDAR_API_KEY
     const timeMin = new Date().toISOString()
     const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&orderBy=startTime&singleEvents=true&maxResults=50`
 

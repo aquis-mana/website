@@ -6,7 +6,7 @@ import { useTranslations } from '../i18n/index'
 import { getAdapter } from '../adapters/calendar'
 import type { CalendarEvent } from '../adapters/calendar'
 
-const siteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY ?? ''
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? ''
 
 const t = useTranslations('de')
 let events: CalendarEvent[] = []
@@ -29,13 +29,11 @@ try {
   </div>
 
   <!-- Turnstile explicit render: widget is ready before the RSVP overlay opens -->
-  <div class="flex justify-center py-6">
-    <div id="page-turnstile"></div>
-  </div>
+  <div id="page-turnstile"></div>
   <script is:inline define:vars={{ siteKey }}>
     window._turnstileSiteKey = siteKey
     window.onTurnstileLoad = function () {
-      turnstile.render('#page-turnstile', { sitekey: window._turnstileSiteKey, theme: 'light' })
+      turnstile.render('#page-turnstile', { sitekey: window._turnstileSiteKey, theme: 'light', appearance: 'interaction-only' })
     }
   </script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>

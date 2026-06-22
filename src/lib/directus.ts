@@ -42,9 +42,9 @@ let client: ReturnType<typeof createDirectus<DirectusSchema>> | null = null
 
 export function getDirectusClient() {
   if (!client) {
-    const url = process.env.DIRECTUS_URL ?? ''
-    const token = process.env.DIRECTUS_TOKEN ?? ''
-    console.log(`[directus] connecting to ${url || '(no DIRECTUS_URL set)'}, token ${token ? 'present' : 'MISSING'}`)
+    const url = import.meta.env.DIRECTUS_URL ?? ''
+    const token = import.meta.env.DIRECTUS_TOKEN ?? ''
+    console.log(`[directus] connecting to ${url || '(no DIRECTUS_URL set)'}, token: ${token ? 'present' : 'MISSING'}`)
     client = createDirectus<DirectusSchema>(url)
       .with(staticToken(token))
       .with(rest())

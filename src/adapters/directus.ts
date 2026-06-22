@@ -19,7 +19,7 @@ function mapEvent(raw: {
     date: new Date(raw.date),
     location: raw.location,
     imageUrl: raw.image
-      ? `${process.env.DIRECTUS_URL}/assets/${raw.image}`
+      ? `${import.meta.env.DIRECTUS_URL}/assets/${raw.image}`
       : null,
     capacity: raw.capacity,
     capacityWarningThreshold: raw.capacity_warning_threshold,
