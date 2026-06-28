@@ -42,8 +42,8 @@ let client: ReturnType<typeof createDirectus<DirectusSchema>> | null = null
 
 export function getDirectusClient() {
   if (!client) {
-    const url = import.meta.env.DIRECTUS_URL
-    const token = import.meta.env.DIRECTUS_TOKEN ?? ''
+    const url = process.env.DIRECTUS_URL
+    const token = process.env.DIRECTUS_TOKEN ?? ''
     if (!url) {
       throw new Error('DIRECTUS_URL is not configured')
     }

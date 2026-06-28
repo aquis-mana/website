@@ -15,7 +15,7 @@ export interface CalendarAdapter {
 }
 
 export async function getAdapter(): Promise<CalendarAdapter> {
-  const source = import.meta.env.CALENDAR_SOURCE ?? 'directus'
+  const source = process.env.CALENDAR_SOURCE ?? 'directus'
   console.log(`[calendar] using adapter: ${source}`)
   if (source === 'google') {
     const { GoogleCalendarAdapter } = await import('./google')
