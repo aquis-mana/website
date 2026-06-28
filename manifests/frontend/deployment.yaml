@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: container-registry.moellemann.net/aquismana-website:latest
+          image: ghcr.io/aquis-mana/website:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 4321
