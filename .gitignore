@@ -20,3 +20,6 @@ npm-debug.log*
 # Playwright
 test-results/
 playwright-report/
+
+# Secrets (k8s secret manifests are generated/local, never committed)
+**/secret.yaml

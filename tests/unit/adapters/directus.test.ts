@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { DirectusCalendarAdapter } from '../../../src/adapters/directus'
 
 vi.mock('../../../src/lib/directus', () => ({
@@ -26,6 +26,8 @@ describe('DirectusCalendarAdapter', () => {
     mockClient = { request: vi.fn() }
     vi.mocked(getDirectusClient).mockReturnValue(mockClient as any)
   })
+
+  afterEach(() => vi.unstubAllEnvs())
 
   it('getUpcomingEvents returns mapped CalendarEvents', async () => {
     mockClient.request.mockResolvedValue([mockEvent])
@@ -55,5 +57,13 @@ describe('DirectusCalendarAdapter', () => {
     mockClient.request.mockResolvedValue([])
     const events = await adapter.getUpcomingEvents()
     expect(events).toHaveLength(0)
+  })
+
+  it('applies DEFAULT_EVENT_CAPACITY when the event has no capacity', async () => {
+    vi.stubEnv('DEFAULT_EVENT_CAPACITY', '15')
+    mockClient.request.mockResolvedValue([{ ...mockEvent, capacity: null }])
+    const adapter = new DirectusCalendarAdapter()
+    const events = await adapter.getUpcomingEvents()
+    expect(events[0].capacity).toBe(15)
   })
 })

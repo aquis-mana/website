@@ -1,6 +1,6 @@
 import { readItems } from '@directus/sdk'
 import { getDirectusClient } from '../lib/directus'
-import type { CalendarAdapter, CalendarEvent } from './calendar'
+import { resolveCapacity, type CalendarAdapter, type CalendarEvent } from './calendar'
 
 function mapEvent(raw: {
   id: string
@@ -21,7 +21,7 @@ function mapEvent(raw: {
     imageUrl: raw.image
       ? `${process.env.DIRECTUS_URL}/assets/${raw.image}`
       : null,
-    capacity: raw.capacity,
+    capacity: resolveCapacity(raw.capacity),
     capacityWarningThreshold: raw.capacity_warning_threshold,
   }
 }

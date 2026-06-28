@@ -1,4 +1,5 @@
 import type { CalendarAdapter, CalendarEvent } from './calendar'
+import { resolveCapacity } from './calendar'
 
 interface GoogleEventItem {
   id: string
@@ -8,31 +9,51 @@ interface GoogleEventItem {
   location?: string
 }
 
+export function parseCapacity(description: string): { capacity: number | null; cleaned: string } {
+  const match = description.match(/\[capacity:\s*(\d+)\s*\]/i)
+  if (!match) return { capacity: null, cleaned: description }
+  const capacity = Number.parseInt(match[1], 10)
+  const cleaned = description.replace(match[0], '').replace(/ {2,}/g, ' ').trim()
+  return { capacity, cleaned }
+}
+
 function mapGoogleEvent(item: GoogleEventItem): CalendarEvent {
+  const { capacity, cleaned } = parseCapacity(item.description ?? '')
   return {
     id: item.id,
     title: item.summary ?? '(Kein Titel)',
-    description: item.description ?? '',
+    description: cleaned,
     date: new Date(item.start.dateTime ?? item.start.date ?? ''),
     location: item.location ?? '',
     imageUrl: null,
-    capacity: null,
+    capacity: resolveCapacity(capacity),
     capacityWarningThreshold: null,
   }
 }
 
 export class GoogleCalendarAdapter implements CalendarAdapter {
   private async fetchEvents(): Promise<CalendarEvent[]> {
-    const calendarId = encodeURIComponent(process.env.GOOGLE_CALENDAR_ID ?? '')
+    const calendarId = process.env.GOOGLE_CALENDAR_ID
     const apiKey = process.env.GOOGLE_CALENDAR_API_KEY
+    if (!calendarId) throw new Error('GOOGLE_CALENDAR_ID is not configured')
+    if (!apiKey) throw new Error('GOOGLE_CALENDAR_API_KEY is not configured')
+
     const timeMin = new Date().toISOString()
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&orderBy=startTime&singleEvents=true&maxResults=50`
+    const url =
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events` +
+      `?key=${apiKey}&timeMin=${timeMin}&orderBy=startTime&singleEvents=true&maxResults=50`
 
+    console.log('[google] fetching upcoming events')
     const res = await fetch(url)
-    if (!res.ok) return []
-
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      console.error(`[google] events.list failed: ${res.status} ${body}`)
+      throw new Error(`Google Calendar request failed: ${res.status}`)
+    }
     const data = await res.json()
-    return (data.items ?? []).map(mapGoogleEvent)
+    const items: GoogleEventItem[] = data.items ?? []
+    console.log(`[google] fetched ${items.length} events`)
+    return items.map(mapGoogleEvent)
   }
 
   async getUpcomingEvents(): Promise<CalendarEvent[]> {
