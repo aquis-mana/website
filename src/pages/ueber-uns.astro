@@ -5,11 +5,11 @@ import { getDirectusClient } from '../lib/directus'
 import { readItems } from '@directus/sdk'
 
 const t = useTranslations('de')
-const client = getDirectusClient()
 
 let page: { id: string; slug: string; title: string; content: string; status: 'published' | 'draft' } | undefined
 
 try {
+  const client = getDirectusClient()
   const pages = await client.request(
     readItems('pages', { filter: { slug: { _eq: 'ueber-uns' }, status: { _eq: 'published' } }, limit: 1 })
   )

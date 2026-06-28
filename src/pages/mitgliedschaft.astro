@@ -5,11 +5,11 @@ import { getDirectusClient } from '../lib/directus'
 import { readItems } from '@directus/sdk'
 
 const t = useTranslations('de')
-const client = getDirectusClient()
 
 let antragDoc: { id: string; title: string; file: string; category: string; sort: number } | undefined
 
 try {
+  const client = getDirectusClient()
   const docs = await client.request(
     readItems('documents', {
       filter: { category: { _eq: 'Mitgliedschaft' } },
