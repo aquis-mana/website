@@ -4,11 +4,11 @@ metadata:
   name: frontend-config
 data:
   HOST: "0.0.0.0"
-  CALENDAR_SOURCE: "directus"
+  CALENDAR_SOURCE: "google"
   DIRECTUS_URL: "http://directus:8055"
   PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAADoWbB9LfqX6jMbE"
   # To use Google Calendar instead of Directus as the event source, set:
   #   CALENDAR_SOURCE: "google"
-  #   GOOGLE_CALENDAR_ID: "<public-calendar-id>"
-  #   DEFAULT_EVENT_CAPACITY: "20"   # optional, source-agnostic fallback when an event has no capacity
+  GOOGLE_CALENDAR_ID: "NzQ0MGQ1YTcyNGYxODg0ODMyMzRhMjM3M2E3YTVjMWVhNzU5YTU3YTg4MTkwNDIwMGZkY2ExYzMyMWU4Nzg0YkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t"
+  DEFAULT_EVENT_CAPACITY: "40"   # optional, source-agnostic fallback when an event has no capacity
   # and provide GOOGLE_CALENDAR_API_KEY via the directus-secret (key: google-api-key).
