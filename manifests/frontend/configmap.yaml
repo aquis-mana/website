@@ -11,4 +11,5 @@ data:
   #   CALENDAR_SOURCE: "google"
   GOOGLE_CALENDAR_ID: "7440d5a724f188483234a2373a7a5c1ea759a57a881904200fdca1c321e8784b@group.calendar.google.com"
   DEFAULT_EVENT_CAPACITY: "40"   # optional, source-agnostic fallback when an event has no capacity
+  EVENT_LOOKAHEAD_DAYS: "7"      # how many days ahead to show events (Google source); default 7
   # and provide GOOGLE_CALENDAR_API_KEY via the directus-secret (key: google-api-key).

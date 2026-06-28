@@ -38,10 +38,14 @@ export class GoogleCalendarAdapter implements CalendarAdapter {
     if (!calendarId) throw new Error('GOOGLE_CALENDAR_ID is not configured')
     if (!apiKey) throw new Error('GOOGLE_CALENDAR_API_KEY is not configured')
 
-    const timeMin = new Date().toISOString()
+    const now = new Date()
+    const parsedDays = Number.parseInt(process.env.EVENT_LOOKAHEAD_DAYS ?? '', 10)
+    const lookaheadDays = Number.isNaN(parsedDays) ? 7 : parsedDays
+    const timeMin = now.toISOString()
+    const timeMax = new Date(now.getTime() + lookaheadDays * 86_400_000).toISOString()
     const url =
       `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events` +
-      `?key=${apiKey}&timeMin=${timeMin}&orderBy=startTime&singleEvents=true&maxResults=50`
+      `?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&maxResults=50`
 
     console.log('[google] fetching upcoming events')
     const res = await fetch(url)

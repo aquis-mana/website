@@ -96,6 +96,37 @@ describe('GoogleCalendarAdapter', () => {
     const events = await adapter.getUpcomingEvents()
     expect(events[0].capacity).toBe(30)
   })
+
+  it('limits the query to a 7-day window by default (timeMax = timeMin + 7d)', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    const adapter = new GoogleCalendarAdapter()
+    await adapter.getUpcomingEvents()
+
+    const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string)
+    const timeMin = new Date(url.searchParams.get('timeMin')!).getTime()
+    const timeMax = new Date(url.searchParams.get('timeMax')!).getTime()
+    expect((timeMax - timeMin) / 86_400_000).toBe(7)
+  })
+
+  it('honors EVENT_LOOKAHEAD_DAYS to size the window', async () => {
+    vi.stubEnv('EVENT_LOOKAHEAD_DAYS', '3')
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    const adapter = new GoogleCalendarAdapter()
+    await adapter.getUpcomingEvents()
+
+    const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string)
+    const timeMin = new Date(url.searchParams.get('timeMin')!).getTime()
+    const timeMax = new Date(url.searchParams.get('timeMax')!).getTime()
+    expect((timeMax - timeMin) / 86_400_000).toBe(3)
+  })
 })
 
 describe('parseCapacity', () => {
