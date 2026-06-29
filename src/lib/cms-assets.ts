@@ -7,7 +7,10 @@
  * SSRF/traversal) and rewrite asset URLs embedded in CMS content to that route.
  */
 
-const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+const UUID = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+// Directus emits asset ids either bare (`<uuid>`) or with an extension
+// (`<uuid>.jpeg`); accept an optional `.<ext>` suffix.
+const FIRST_SEGMENT_RE = new RegExp(`^${UUID}(\\.[A-Za-z0-9]+)?$`)
 const SAFE_FILENAME_RE = /^[\w.\- ]+$/
 
 // Only these Directus asset query params are forwarded; tokens (access_token,
@@ -23,7 +26,7 @@ export function parseAssetId(idPath: string): string | null {
   if (!idPath || idPath.includes('..')) return null
   const segments = idPath.split('/')
   if (segments.length === 1) {
-    return UUID_RE.test(segments[0]) ? idPath : null
+    return FIRST_SEGMENT_RE.test(segments[0]) ? idPath : null
   }
   if (segments.length === 2) {
     let name: string
@@ -32,7 +35,7 @@ export function parseAssetId(idPath: string): string | null {
     } catch {
       return null
     }
-    return UUID_RE.test(segments[0]) && SAFE_FILENAME_RE.test(name) ? idPath : null
+    return FIRST_SEGMENT_RE.test(segments[0]) && SAFE_FILENAME_RE.test(name) ? idPath : null
   }
   return null
 }

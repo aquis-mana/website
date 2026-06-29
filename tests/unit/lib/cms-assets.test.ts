@@ -7,6 +7,9 @@ describe('parseAssetId', () => {
   it('accepts a bare UUID', () => {
     expect(parseAssetId(UUID)).toBe(UUID)
   })
+  it('accepts a UUID with an extension suffix', () => {
+    expect(parseAssetId(`${UUID}.jpeg`)).toBe(`${UUID}.jpeg`)
+  })
   it('accepts a UUID with a safe filename segment', () => {
     expect(parseAssetId(`${UUID}/satzung.pdf`)).toBe(`${UUID}/satzung.pdf`)
   })
@@ -48,6 +51,11 @@ describe('rewriteAssetUrl', () => {
   })
   it('rewrites a relative /assets path', () => {
     expect(rewriteAssetUrl(`/assets/${UUID}`)).toBe(`/cms-assets/${UUID}`)
+  })
+  it('rewrites the real Directus form (uuid.ext with size params)', () => {
+    expect(
+      rewriteAssetUrl(`https://cms.aquis-mana.de/assets/${UUID}.jpeg?width=2048&height=1152`)
+    ).toBe(`/cms-assets/${UUID}.jpeg?width=2048&height=1152`)
   })
   it('keeps allowlisted transform params and drops tokens', () => {
     expect(rewriteAssetUrl(`https://cms.aquis-mana.de/assets/${UUID}?width=400&access_token=evil`))
