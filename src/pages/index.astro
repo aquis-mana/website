@@ -30,7 +30,7 @@ try {
 
   <!-- Turnstile explicit render: widget is ready before the RSVP overlay opens -->
   <div id="page-turnstile"></div>
-  <script is:inline define:vars={{ siteKey }}>
+  <script is:inline define:vars={{ siteKey }} nonce={Astro.locals.cspNonce}>
     window._turnstileSiteKey = siteKey
     window.onTurnstileLoad = function () {
       turnstile.render('#page-turnstile', { sitekey: window._turnstileSiteKey, theme: 'light', appearance: 'interaction-only' })

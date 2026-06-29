@@ -75,7 +75,7 @@ const navLinks = [
         </div>
       </div>
     </footer>
-    <script is:inline>
+    <script is:inline nonce={Astro.locals.cspNonce}>
       (function () {
         const toggle = document.getElementById('menu-toggle')
         const menu = document.getElementById('mobile-menu')

@@ -10,3 +10,10 @@ interface ImportMetaEnv {
   readonly GOOGLE_CALENDAR_API_KEY?: string
   readonly TURNSTILE_SECRET_KEY?: string
 }
+
+declare namespace App {
+  interface Locals {
+    /** Per-request CSP nonce set by middleware; apply to inline <script> tags. */
+    cspNonce: string
+  }
+}

@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro'
 import { useTranslations } from '../i18n/index'
 import { getDirectusClient } from '../lib/directus'
+import { sanitizeCmsHtml } from '../lib/sanitize'
 import { readItems } from '@directus/sdk'
 
 const t = useTranslations('de')
@@ -23,7 +24,7 @@ try {
   <section class="max-w-3xl mx-auto px-4 py-12">
     <h1 class="text-2xl sm:text-3xl font-bold text-navy mb-6">{t('about.heading')}</h1>
     {page ? (
-      <div class="prose max-w-none" set:html={page.content} />
+      <div class="prose max-w-none" set:html={sanitizeCmsHtml(page.content)} />
     ) : (
       <p class="text-gray-600">{t('pages.contentFallback')}</p>
     )}
