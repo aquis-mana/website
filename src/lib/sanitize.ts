@@ -1,4 +1,5 @@
 import sanitizeHtmlLib from 'sanitize-html'
+import { rewriteAssetUrl } from './cms-assets'
 
 /**
  * Sanitize rich-text HTML coming from the CMS (Directus `pages.content`)
@@ -26,6 +27,12 @@ export function sanitizeCmsHtml(dirty: string): string {
     // Force external links to be safe.
     transformTags: {
       a: sanitizeHtmlLib.simpleTransform('a', { rel: 'noopener noreferrer' }),
+      // Route Directus-hosted images through the public asset proxy so they
+      // load in the browser (Directus itself is not publicly reachable).
+      img: (tagName, attribs) => {
+        if (attribs.src) attribs.src = rewriteAssetUrl(attribs.src)
+        return { tagName, attribs }
+      },
     },
     disallowedTagsMode: 'discard',
   })

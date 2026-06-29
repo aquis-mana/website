@@ -26,6 +26,13 @@ describe('sanitizeCmsHtml', () => {
     expect(sanitizeCmsHtml(html)).toBe(html)
   })
 
+  it('rewrites Directus asset image URLs to the public proxy path', () => {
+    const uuid = '7440d5a7-24f1-8848-3234-a2373a7a5c1e'
+    const out = sanitizeCmsHtml(`<p><img src="https://cms.aquis-mana.de/assets/${uuid}" alt="x"></p>`)
+    expect(out).toContain(`/cms-assets/${uuid}`)
+    expect(out).not.toContain('cms.aquis-mana.de')
+  })
+
   it('handles empty / nullish input without throwing', () => {
     expect(sanitizeCmsHtml('')).toBe('')
     // @ts-expect-error testing defensive nullish handling
