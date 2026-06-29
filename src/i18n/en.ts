@@ -6,6 +6,7 @@ const en: Record<keyof typeof de, string> = {
   'nav.about': 'About',
   'nav.membership': 'Membership',
   'nav.documents': 'Documents',
+  'nav.menu': 'Menu',
   'home.intro.heading': 'Welcome to Aquis Mana e.V.',
   'home.intro.body': 'We provide space for gaming communities in Aachen — open to all tabletop groups, especially younger players.',
   'events.heading': 'Events',

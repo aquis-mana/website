@@ -3,6 +3,7 @@ export default {
   'nav.about': 'Über uns',
   'nav.membership': 'Mitgliedschaft',
   'nav.documents': 'Dokumente',
+  'nav.menu': 'Menü',
   'home.intro.heading': 'Willkommen bei Aquis Mana e.V.',
   'home.intro.body': 'Wir bieten Raum für Spielgemeinschaften in Aachen — offen für alle Tabletop-Gruppen, besonders für jüngere Spieler.',
   'events.heading': 'Veranstaltungen',

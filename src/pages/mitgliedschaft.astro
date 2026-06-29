@@ -24,10 +24,11 @@ try {
 
 <Base title={t('membership.heading')} lang="de">
   <section class="max-w-3xl mx-auto px-4 py-12">
-    <h1 class="text-3xl font-bold text-navy mb-8">{t('membership.heading')}</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold text-navy mb-8">{t('membership.heading')}</h1>
 
     <h2 class="text-xl font-semibold text-navy mb-4">{t('membership.types.heading')}</h2>
-    <table class="w-full border-collapse mb-8 text-sm">
+    <div class="overflow-x-auto mb-8">
+      <table class="w-full border-collapse text-sm">
       <thead>
         <tr class="bg-navy text-white">
           <th class="px-4 py-2 text-left">{t('membership.table.type')}</th>
@@ -48,7 +49,8 @@ try {
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
 
     <h2 class="text-xl font-semibold text-navy mb-4">{t('membership.payment.heading')}</h2>
     <div class="bg-gray-50 rounded-lg p-4 mb-8 text-sm font-mono">
