@@ -4,6 +4,14 @@ import { randomBytes } from 'node:crypto'
 const TURNSTILE = 'https://challenges.cloudflare.com'
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // EN is not translated yet: redirect /en and /en/* to the German equivalent
+  // (temporary 302 so it isn't cached while EN is being implemented).
+  const { pathname, search } = context.url
+  if (pathname === '/en' || pathname.startsWith('/en/')) {
+    const target = pathname.replace(/^\/en/, '') || '/'
+    return context.redirect(target + search, 302)
+  }
+
   // Per-request nonce so our inline <script>s can run without 'unsafe-inline'.
   const nonce = randomBytes(16).toString('base64')
   context.locals.cspNonce = nonce
