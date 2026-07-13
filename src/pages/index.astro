@@ -28,12 +28,21 @@ try {
     </section>
   </div>
 
-  <!-- Turnstile explicit render: widget is ready before the RSVP overlay opens -->
+  <!-- Invisible Turnstile: the sitekey is configured in Invisible mode, so no
+       widget or badge is ever shown. A token is produced in the background and
+       refreshed when it expires or when the RSVP dialog opens. -->
   <div id="page-turnstile"></div>
   <script is:inline define:vars={{ siteKey }} nonce={Astro.locals.cspNonce}>
     window._turnstileSiteKey = siteKey
     window.onTurnstileLoad = function () {
-      turnstile.render('#page-turnstile', { sitekey: window._turnstileSiteKey, theme: 'light', appearance: 'interaction-only' })
+      var widgetId = turnstile.render('#page-turnstile', {
+        sitekey: window._turnstileSiteKey,
+        // Re-run the invisible challenge when the token expires (~5 min) so a
+        // valid token is always ready by the time someone submits an RSVP.
+        'expired-callback': function () { turnstile.reset(widgetId) },
+      })
+      // Let RsvpOverlay request a fresh token when the dialog opens.
+      window.refreshTurnstile = function () { turnstile.reset(widgetId) }
     }
   </script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>

@@ -138,6 +138,10 @@ const t = useTranslations(lang)
     currentEventId = eventId
     errorEl.classList.add('hidden')
 
+    // Ask the invisible Turnstile widget for a fresh token for this RSVP.
+    // Guarded so the dialog still opens if the Turnstile script never loaded.
+    ;(window as unknown as { refreshTurnstile?: () => void }).refreshTurnstile?.()
+
     // Warning banner
     if (isOverFull) {
       warningEl.textContent = warningEl.dataset.fullText ?? ''
