@@ -1,6 +1,7 @@
 import type { CalendarAdapter, CalendarEvent } from './calendar'
 import { resolveCapacity } from './calendar'
 import { createLogger } from '../lib/logger'
+import { config } from '../lib/config'
 
 const log = createLogger('google')
 
@@ -36,14 +37,13 @@ function mapGoogleEvent(item: GoogleEventItem): CalendarEvent {
 
 export class GoogleCalendarAdapter implements CalendarAdapter {
   private async fetchEvents(): Promise<CalendarEvent[]> {
-    const calendarId = process.env.GOOGLE_CALENDAR_ID
-    const apiKey = process.env.GOOGLE_CALENDAR_API_KEY
+    const calendarId = config.googleCalendarId
+    const apiKey = config.googleApiKey
     if (!calendarId) throw new Error('GOOGLE_CALENDAR_ID is not configured')
     if (!apiKey) throw new Error('GOOGLE_CALENDAR_API_KEY is not configured')
 
     const now = new Date()
-    const parsedDays = Number.parseInt(process.env.EVENT_LOOKAHEAD_DAYS ?? '', 10)
-    const lookaheadDays = Number.isNaN(parsedDays) ? 7 : parsedDays
+    const lookaheadDays = config.eventLookaheadDays
     const timeMin = now.toISOString()
     const timeMax = new Date(now.getTime() + lookaheadDays * 86_400_000).toISOString()
     const url =

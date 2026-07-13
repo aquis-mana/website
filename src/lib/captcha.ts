@@ -1,5 +1,7 @@
+import { config } from './config'
+
 export async function verifyTurnstile(token: string): Promise<boolean> {
-  const secret = process.env.TURNSTILE_SECRET_KEY
+  const secret = config.turnstileSecretKey
   const res = await fetch(
     'https://challenges.cloudflare.com/turnstile/v0/siteverify',
     {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createRsvp, updateRsvp, cancelRsvp, getRsvpStats } from '../../../src/lib/rsvp'
+import { createRsvp, updateRsvp, cancelRsvp, getRsvpStats, findActiveRsvp } from '../../../src/lib/rsvp'
 
 vi.mock('../../../src/lib/directus', () => ({ getDirectusClient: vi.fn() }))
 vi.mock('@directus/sdk', () => ({
@@ -60,5 +60,20 @@ describe('getRsvpStats', () => {
     const stats = await getRsvpStats('e1', 20)
     expect(stats.isNearFull).toBe(true)
     expect(stats.isOverFull).toBe(false)
+  })
+})
+
+describe('findActiveRsvp', () => {
+  it('returns the first non-cancelled rsvp or null', async () => {
+    const mockRequest = vi.fn()
+    vi.mocked(getDirectusClient).mockReturnValue({ request: mockRequest } as any)
+
+    mockRequest.mockResolvedValue([
+      { id: 'r1', event_id: 'e1', name: 'A', status: 'yes', visitor_token: 't' },
+    ])
+    expect((await findActiveRsvp('t'))?.id).toBe('r1')
+
+    mockRequest.mockResolvedValue([])
+    expect(await findActiveRsvp('t')).toBeNull()
   })
 })

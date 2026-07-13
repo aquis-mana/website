@@ -1,4 +1,5 @@
 import { createLogger } from '../lib/logger'
+import { config } from '../lib/config'
 
 const log = createLogger('calendar')
 
@@ -19,7 +20,7 @@ export interface CalendarAdapter {
 }
 
 export async function getAdapter(): Promise<CalendarAdapter> {
-  const source = process.env.CALENDAR_SOURCE ?? 'directus'
+  const source = config.calendarSource
   log.debug(`using adapter: ${source}`)
   if (source === 'google') {
     const { GoogleCalendarAdapter } = await import('./google')
@@ -31,8 +32,5 @@ export async function getAdapter(): Promise<CalendarAdapter> {
 
 export function resolveCapacity(explicit: number | null): number | null {
   if (explicit !== null) return explicit
-  const raw = process.env.DEFAULT_EVENT_CAPACITY
-  if (!raw) return null
-  const parsed = Number.parseInt(raw, 10)
-  return Number.isNaN(parsed) ? null : parsed
+  return config.defaultEventCapacity
 }

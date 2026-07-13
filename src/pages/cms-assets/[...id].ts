@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro'
 import { buildUpstreamAssetUrl } from '../../lib/cms-assets'
 import { createLogger } from '../../lib/logger'
+import { config } from '../../lib/config'
 
 const log = createLogger('cms-assets')
 
@@ -12,7 +13,7 @@ export const prerender = false
  * network and streams them back. Only validated file ids reach Directus.
  */
 export const GET: APIRoute = async ({ params, url }) => {
-  const directusBase = process.env.DIRECTUS_URL
+  const directusBase = config.directusUrl
   if (!directusBase) return new Response(null, { status: 500 })
 
   const idPath = params.id
@@ -21,7 +22,7 @@ export const GET: APIRoute = async ({ params, url }) => {
   const upstream = buildUpstreamAssetUrl(idPath, url.searchParams, directusBase)
   if (!upstream) return new Response(null, { status: 400 })
 
-  const token = process.env.DIRECTUS_TOKEN
+  const token = config.directusToken
   let res: Response
   try {
     res = await fetch(upstream, {

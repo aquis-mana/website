@@ -7,8 +7,16 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'npm run dev',
+    // Exercise the real production build (dev mode serves scripts differently
+    // and has hidden production-only bugs, e.g. the CSP script inlining issue).
+    command: 'npm run build && npm run start',
     port: 4321,
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+    env: {
+      ...process.env,
+      HOST: '127.0.0.1',
+      PORT: '4321',
+    },
   },
 })

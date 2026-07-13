@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { DirectusCalendarAdapter } from '../../../src/adapters/directus'
+import { DirectusCalendarAdapter, upcomingEventsQuery } from '../../../src/adapters/directus'
 
 vi.mock('../../../src/lib/directus', () => ({
   getDirectusClient: vi.fn(),
@@ -65,5 +65,13 @@ describe('DirectusCalendarAdapter', () => {
     const adapter = new DirectusCalendarAdapter()
     const events = await adapter.getUpcomingEvents()
     expect(events[0].capacity).toBe(15)
+  })
+
+  it('upcomingEventsQuery windows to lookaheadDays with an upper bound', () => {
+    const now = new Date('2026-07-01T00:00:00.000Z')
+    const q = upcomingEventsQuery(now, 5)
+    expect(q.filter.status._eq).toBe('published')
+    expect(q.filter.date._gte).toBe('2026-07-01T00:00:00.000Z')
+    expect(q.filter.date._lte).toBe('2026-07-06T00:00:00.000Z')
   })
 })

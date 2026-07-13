@@ -1,8 +1,7 @@
 import type { APIRoute } from 'astro'
-import { readItems } from '@directus/sdk'
-import { getDirectusClient } from '../../../lib/directus'
-import { updateRsvp, cancelRsvp } from '../../../lib/rsvp'
+import { updateRsvp, cancelRsvp, findActiveRsvp } from '../../../lib/rsvp'
 import { createLogger } from '../../../lib/logger'
+import { json, jsonError } from '../../../lib/http'
 
 const log = createLogger('rsvp')
 
@@ -11,23 +10,12 @@ export const GET: APIRoute = async ({ params }) => {
   if (!token) return new Response(null, { status: 400 })
 
   try {
-    const client = getDirectusClient()
-    const items = await client.request(
-      readItems('rsvps', {
-        filter: { visitor_token: { _eq: token }, status: { _neq: 'cancelled' } },
-        limit: 1,
-        fields: ['status'],
-      })
-    )
-    if (!items.length) return new Response(null, { status: 404 })
-    const rsvp = items[0] as { status: 'yes' | 'maybe' }
-    return new Response(JSON.stringify({ status: rsvp.status }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const existing = await findActiveRsvp(token)
+    if (!existing) return new Response(null, { status: 404 })
+    return json({ status: existing.status })
   } catch (err) {
     log.error('GET by token failed', err)
-    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
+    return jsonError('Server error', 500)
   }
 }
 
@@ -39,20 +27,20 @@ export const PATCH: APIRoute = async ({ params, request }) => {
   try {
     body = await request.json()
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 })
+    return jsonError('Invalid JSON', 400)
   }
 
   const { status } = body
   if (status !== 'yes' && status !== 'maybe') {
-    return new Response(JSON.stringify({ error: 'Invalid status' }), { status: 400 })
+    return jsonError('Invalid status', 400)
   }
 
   try {
     const rsvp = await updateRsvp(token, status)
-    return new Response(JSON.stringify(rsvp), { status: 200 })
+    return json(rsvp)
   } catch (err) {
     log.error('PATCH updateRsvp failed', err)
-    return new Response(JSON.stringify({ error: 'RSVP not found' }), { status: 404 })
+    return jsonError('RSVP not found', 404)
   }
 }
 

@@ -31,6 +31,18 @@ function mapRsvp(raw: {
   }
 }
 
+/** The active (non-cancelled) RSVP for a visitor token, or null. */
+export async function findActiveRsvp(visitorToken: string) {
+  const client = getDirectusClient()
+  const items = await client.request(
+    readItems('rsvps', {
+      filter: { visitor_token: { _eq: visitorToken }, status: { _neq: 'cancelled' } },
+      limit: 1,
+    })
+  )
+  return items[0] ?? null
+}
+
 export async function createRsvp(
   eventId: string,
   name: string,
@@ -47,35 +59,25 @@ export async function createRsvp(
       member_id: null,
     })
   )
-  return mapRsvp(raw as any)
+  return mapRsvp(raw)
 }
 
 export async function updateRsvp(
   visitorToken: string,
   status: 'yes' | 'maybe'
 ): Promise<RsvpRecord> {
+  const existing = await findActiveRsvp(visitorToken)
+  if (!existing) throw new Error('RSVP not found')
   const client = getDirectusClient()
-  const existing = await client.request(
-    readItems('rsvps', {
-      filter: { visitor_token: { _eq: visitorToken }, status: { _neq: 'cancelled' } },
-      limit: 1,
-    })
-  )
-  if (!existing.length) throw new Error('RSVP not found')
-  const raw = await client.request(updateItem('rsvps', existing[0].id, { status }))
-  return mapRsvp(raw as any)
+  const raw = await client.request(updateItem('rsvps', existing.id, { status }))
+  return mapRsvp(raw)
 }
 
 export async function cancelRsvp(visitorToken: string): Promise<void> {
+  const existing = await findActiveRsvp(visitorToken)
+  if (!existing) return
   const client = getDirectusClient()
-  const existing = await client.request(
-    readItems('rsvps', {
-      filter: { visitor_token: { _eq: visitorToken }, status: { _neq: 'cancelled' } },
-      limit: 1,
-    })
-  )
-  if (!existing.length) return
-  await client.request(updateItem('rsvps', existing[0].id, { status: 'cancelled' }))
+  await client.request(updateItem('rsvps', existing.id, { status: 'cancelled' }))
 }
 
 export async function getRsvpStats(
@@ -91,8 +93,8 @@ export async function getRsvpStats(
     })
   )
 
-  const yes = (items as Array<{ status: string }>).filter((r) => r.status === 'yes').length
-  const maybe = (items as Array<{ status: string }>).filter((r) => r.status === 'maybe').length
+  const yes = items.filter((r) => r.status === 'yes').length
+  const maybe = items.filter((r) => r.status === 'maybe').length
   const total = yes + maybe
 
   let isNearFull = false

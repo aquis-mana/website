@@ -6,10 +6,11 @@ import { useTranslations } from '../i18n/index'
 import { getAdapter } from '../adapters/calendar'
 import type { CalendarEvent } from '../adapters/calendar'
 import { createLogger } from '../lib/logger'
+import { config } from '../lib/config'
 
 const log = createLogger('index')
 
-const siteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY ?? ''
+const siteKey = config.turnstileSiteKey
 
 const t = useTranslations('de')
 let events: CalendarEvent[] = []

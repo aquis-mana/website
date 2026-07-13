@@ -1,11 +1,12 @@
-import { createDirectus, rest, staticToken } from '@directus/sdk'
+import { type DirectusClient, type RestClient, type StaticTokenClient, createDirectus, rest, staticToken } from '@directus/sdk'
+import { config } from './config'
 
 interface DirectusSchema {
   events: {
     id: string
     title: string
     description: string
-    date: string
+    date: 'datetime'
     location: string
     image: string | null
     capacity: number | null
@@ -38,18 +39,20 @@ interface DirectusSchema {
   }[]
 }
 
-let client: ReturnType<typeof createDirectus<DirectusSchema>> | null = null
+type DirectusRestClient = DirectusClient<DirectusSchema> & StaticTokenClient<DirectusSchema> & RestClient<DirectusSchema>
 
-export function getDirectusClient() {
+let client: DirectusRestClient | null = null
+
+export function getDirectusClient(): DirectusRestClient {
   if (!client) {
-    const url = process.env.DIRECTUS_URL
-    const token = process.env.DIRECTUS_TOKEN ?? ''
+    const url = config.directusUrl
+    const token = config.directusToken
     if (!url) {
       throw new Error('DIRECTUS_URL is not configured')
     }
     client = createDirectus<DirectusSchema>(url)
       .with(staticToken(token))
-      .with(rest())
+      .with(rest()) as DirectusRestClient
   }
   return client
 }

@@ -2,6 +2,7 @@ import { readItems } from '@directus/sdk'
 import { getDirectusClient } from '../lib/directus'
 import { resolveCapacity, type CalendarAdapter, type CalendarEvent } from './calendar'
 import { createLogger } from '../lib/logger'
+import { config } from '../lib/config'
 
 const log = createLogger('directus')
 
@@ -29,20 +30,30 @@ function mapEvent(raw: {
   }
 }
 
+/**
+ * Query for published events from now through the look-ahead window. Mirrors the
+ * Google adapter's EVENT_LOOKAHEAD_DAYS windowing so both sources agree.
+ */
+export function upcomingEventsQuery(now: Date, lookaheadDays: number) {
+  const timeMax = new Date(now.getTime() + lookaheadDays * 86_400_000)
+  return {
+    filter: {
+      status: { _eq: 'published' as const },
+      date: { _gte: now.toISOString(), _lte: timeMax.toISOString() },
+    },
+    // Typed as a field-literal array so the Directus SDK accepts it once the
+    // query is extracted here (inline it would be narrowed by contextual typing).
+    sort: ['date'] as ('date')[],
+  }
+}
+
 export class DirectusCalendarAdapter implements CalendarAdapter {
   async getUpcomingEvents(): Promise<CalendarEvent[]> {
     const client = getDirectusClient()
-    const now = new Date().toISOString()
     log.debug('fetching upcoming events')
     try {
       const items = await client.request(
-        readItems('events', {
-          filter: {
-            status: { _eq: 'published' },
-            date: { _gte: now },
-          },
-          sort: ['date'],
-        })
+        readItems('events', upcomingEventsQuery(new Date(), config.eventLookaheadDays))
       )
       log.info(`fetched ${items.length} events`)
       return items.map(mapEvent)
