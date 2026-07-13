@@ -1,3 +1,7 @@
+import { createLogger } from '../lib/logger'
+
+const log = createLogger('calendar')
+
 export interface CalendarEvent {
   id: string
   title: string
@@ -16,7 +20,7 @@ export interface CalendarAdapter {
 
 export async function getAdapter(): Promise<CalendarAdapter> {
   const source = process.env.CALENDAR_SOURCE ?? 'directus'
-  console.log(`[calendar] using adapter: ${source}`)
+  log.debug(`using adapter: ${source}`)
   if (source === 'google') {
     const { GoogleCalendarAdapter } = await import('./google')
     return new GoogleCalendarAdapter()

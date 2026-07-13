@@ -2,6 +2,9 @@ import type { APIRoute } from 'astro'
 import { readItems } from '@directus/sdk'
 import { getDirectusClient } from '../../../lib/directus'
 import { updateRsvp, cancelRsvp } from '../../../lib/rsvp'
+import { createLogger } from '../../../lib/logger'
+
+const log = createLogger('rsvp')
 
 export const GET: APIRoute = async ({ params }) => {
   const { token } = params
@@ -23,7 +26,7 @@ export const GET: APIRoute = async ({ params }) => {
       headers: { 'Content-Type': 'application/json' },
     })
   } catch (err) {
-    console.error('[rsvp] GET by token failed:', err)
+    log.error('GET by token failed', err)
     return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
   }
 }
@@ -48,7 +51,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
     const rsvp = await updateRsvp(token, status)
     return new Response(JSON.stringify(rsvp), { status: 200 })
   } catch (err) {
-    console.error('[rsvp] PATCH updateRsvp failed:', err)
+    log.error('PATCH updateRsvp failed', err)
     return new Response(JSON.stringify({ error: 'RSVP not found' }), { status: 404 })
   }
 }
@@ -59,7 +62,7 @@ export const DELETE: APIRoute = async ({ params }) => {
   try {
     await cancelRsvp(token)
   } catch (err) {
-    console.error('[rsvp] DELETE cancelRsvp failed:', err)
+    log.error('DELETE cancelRsvp failed', err)
   }
   return new Response(null, { status: 204 })
 }

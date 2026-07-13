@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro'
 import { getRsvpStats } from '../../../../lib/rsvp'
 import { getAdapter } from '../../../../adapters/calendar'
+import { createLogger } from '../../../../lib/logger'
+
+const log = createLogger('events')
 
 export const GET: APIRoute = async ({ params }) => {
   const { id } = params
@@ -16,7 +19,7 @@ export const GET: APIRoute = async ({ params }) => {
     )
     return new Response(JSON.stringify(stats), { status: 200 })
   } catch (err) {
-    console.error(`[events] GET stats for ${id} failed:`, err)
+    log.error(`GET stats for ${id} failed`, err)
     return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
   }
 }

@@ -5,6 +5,9 @@ import RsvpOverlay from '../components/RsvpOverlay.astro'
 import { useTranslations } from '../i18n/index'
 import { getAdapter } from '../adapters/calendar'
 import type { CalendarEvent } from '../adapters/calendar'
+import { createLogger } from '../lib/logger'
+
+const log = createLogger('index')
 
 const siteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY ?? ''
 
@@ -14,7 +17,7 @@ try {
   const adapter = await getAdapter()
   events = await adapter.getUpcomingEvents()
 } catch (err) {
-  console.error('Failed to load events:', err)
+  log.error('failed to load events', err)
 }
 ---
 

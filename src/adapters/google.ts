@@ -1,5 +1,8 @@
 import type { CalendarAdapter, CalendarEvent } from './calendar'
 import { resolveCapacity } from './calendar'
+import { createLogger } from '../lib/logger'
+
+const log = createLogger('google')
 
 interface GoogleEventItem {
   id: string
@@ -47,16 +50,16 @@ export class GoogleCalendarAdapter implements CalendarAdapter {
       `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events` +
       `?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&maxResults=50`
 
-    console.log('[google] fetching upcoming events')
+    log.debug('fetching upcoming events')
     const res = await fetch(url)
     if (!res.ok) {
       const body = await res.text().catch(() => '')
-      console.error(`[google] events.list failed: ${res.status} ${body}`)
+      log.error(`events.list failed: ${res.status} ${body}`)
       throw new Error(`Google Calendar request failed: ${res.status}`)
     }
     const data = await res.json()
     const items: GoogleEventItem[] = data.items ?? []
-    console.log(`[google] fetched ${items.length} events`)
+    log.info(`fetched ${items.length} events`)
     return items.map(mapGoogleEvent)
   }
 

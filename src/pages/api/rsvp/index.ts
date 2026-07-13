@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro'
 import { createRsvp } from '../../../lib/rsvp'
 import { verifyTurnstile } from '../../../lib/captcha'
+import { createLogger } from '../../../lib/logger'
+
+const log = createLogger('rsvp')
 
 const json = (body: unknown, status: number) =>
   new Response(JSON.stringify(body), {
@@ -34,7 +37,7 @@ export const POST: APIRoute = async ({ request }) => {
     const rsvp = await createRsvp(eventId, name.trim(), status, visitorToken)
     return json(rsvp, 201)
   } catch (err) {
-    console.error('[rsvp] POST createRsvp failed:', err)
+    log.error('POST createRsvp failed', err)
     return json({ error: 'Server error' }, 500)
   }
 }

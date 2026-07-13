@@ -47,7 +47,6 @@ export function getDirectusClient() {
     if (!url) {
       throw new Error('DIRECTUS_URL is not configured')
     }
-    console.log(`[directus] connecting to ${url || '(no DIRECTUS_URL set)'}, token: ${token ? 'present' : 'MISSING'}`)
     client = createDirectus<DirectusSchema>(url)
       .with(staticToken(token))
       .with(rest())

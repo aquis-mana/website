@@ -1,11 +1,12 @@
 import de from './de'
-import en from './en'
 
 type Strings = typeof de
-const strings = { de, en } as const
 
-export function useTranslations(lang: 'de' | 'en' = 'de') {
+// EN is not implemented yet (the middleware redirects /en → /). The site is
+// DE-only for now, so everything resolves to German. The `lang` param is kept
+// so callers don't need to change when EN is reintroduced.
+export function useTranslations(_lang: 'de' | 'en' = 'de') {
   return function t(key: keyof Strings): string {
-    return strings[lang][key] ?? strings.de[key]
+    return de[key]
   }
 }

@@ -4,6 +4,15 @@
 dist/
 .astro/
 
+# Test coverage
+coverage/
+
+# OS
+.DS_Store
+
+# Superpowers agent work logs (ephemeral; specs/ and plans/*.md designs are kept)
+docs/superpowers/plans/task-*-report.md
+
 # Node
 node_modules/
 npm-debug.log*

@@ -1,5 +1,8 @@
 import type { APIRoute } from 'astro'
 import { buildUpstreamAssetUrl } from '../../lib/cms-assets'
+import { createLogger } from '../../lib/logger'
+
+const log = createLogger('cms-assets')
 
 export const prerender = false
 
@@ -25,7 +28,7 @@ export const GET: APIRoute = async ({ params, url }) => {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
   } catch (err) {
-    console.error('[cms-assets] upstream fetch failed:', err)
+    log.error('upstream fetch failed', err)
     return new Response(null, { status: 502 })
   }
 
