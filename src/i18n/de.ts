@@ -37,6 +37,8 @@ export default {
   'documents.empty': 'Keine Dokumente vorhanden.',
   'about.heading': 'Über uns',
   'pages.contentFallback': 'Inhalt folgt in Kürze.',
+  'notFound.heading': 'Seite nicht gefunden',
+  'notFound.body': 'Diese Seite existiert nicht.',
   'membership.table.type': 'Art',
   'membership.table.fee': 'Monatsbeitrag',
   'rsvp.close': 'Schließen',
