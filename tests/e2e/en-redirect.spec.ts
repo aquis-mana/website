@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test'
 
 test.describe('EN locale suppressed', () => {
   test('/en/<path> redirects to the German page', async ({ page }) => {
-    await page.goto('/en/ueber-uns')
-    expect(new URL(page.url()).pathname).toBe('/ueber-uns')
+    await page.goto('/en/about-us')
+    expect(new URL(page.url()).pathname).toBe('/about-us')
   })
 
   test('/en redirects to the home page', async ({ page }) => {

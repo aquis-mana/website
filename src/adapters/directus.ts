@@ -23,7 +23,7 @@ function mapEvent(raw: {
     date: new Date(raw.date),
     location: raw.location,
     // Directus is private and unreachable from the browser, so route images
-    // through the public /cms-assets proxy (same as documents in dokumente.astro).
+    // through the public /cms-assets proxy (same as documents in documents.astro).
     imageUrl: raw.image ? `/cms-assets/${raw.image}` : null,
     capacity: resolveCapacity(raw.capacity),
     capacityWarningThreshold: raw.capacity_warning_threshold,

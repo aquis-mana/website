@@ -29,7 +29,7 @@ test.describe('responsive layout', () => {
 
   test('mobile: membership page has no horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 })
-    await page.goto('/mitgliedschaft')
+    await page.goto('/membership')
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth
     )
