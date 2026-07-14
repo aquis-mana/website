@@ -69,13 +69,17 @@
   border-top: 1px solid #e5e7eb;
   margin: 1.5rem 0;
 }
-/* Tables scroll horizontally on small screens (preserves the fee table's responsiveness). */
 .cms-content table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
-  display: block;
-  overflow-x: auto;
+}
+/* Wide tables scroll horizontally on small screens; full-width otherwise. */
+@media (max-width: 640px) {
+  .cms-content table {
+    display: block;
+    overflow-x: auto;
+  }
 }
 .cms-content th,
 .cms-content td {
