@@ -10,6 +10,8 @@ export default {
   'events.empty': 'Keine kommenden Veranstaltungen.',
   'events.rsvp': 'Anmelden',
   'events.attending': 'Teilnehmer',
+  'events.attendees.heading': 'Angemeldet',
+  'events.attendees.empty': 'Noch niemand angemeldet.',
   'events.capacity': 'Kapazität',
   'events.full': 'Ausgebucht',
   'events.nearFull': 'Fast ausgebucht',

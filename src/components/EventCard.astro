@@ -1,5 +1,6 @@
 ---
 import RsvpStats from './RsvpStats.astro'
+import RsvpAttendees from './RsvpAttendees.astro'
 import { getRsvpStats } from '../lib/rsvp'
 import { formatEventDateTime } from '../lib/datetime'
 import { useTranslations } from '../i18n/index'
@@ -36,12 +37,13 @@ const { date: dateStr, time: timeStr } = formatEventDateTime(event.date, lang, '
     <img src={event.imageUrl} alt={event.title} class="w-full h-40 object-cover rounded-lg mb-4" />
   )}
   <div class="flex justify-between items-start gap-2 mb-2">
-    <h3 class="text-lg font-bold text-navy">{event.title}</h3>
+    <h3 class="text-lg font-bold text-navy min-w-0">{event.title}</h3>
     <RsvpStats stats={stats} lang={lang} />
   </div>
   <p class="text-sm text-gray-500 mb-1">📅 <time datetime={iso} data-event-time data-lang={lang}>{dateStr} · {timeStr}</time></p>
   {event.location && <p class="text-sm text-gray-500 mb-3">📍 {event.location}</p>}
   {event.description && <p class="text-sm text-gray-600 mb-4 line-clamp-3">{event.description}</p>}
+  <RsvpAttendees attendees={stats.attendees} lang={lang} />
   <button
     class="rsvp-trigger w-full bg-navy text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-accent transition-colors"
     data-event-id={event.id}

@@ -41,6 +41,36 @@ describe('getRsvpStats', () => {
     expect(stats.isOverFull).toBe(false)
   })
 
+  it('lists attendee names, yes before maybe, alphabetical, cancelled excluded', async () => {
+    const mockRequest = vi.fn().mockResolvedValue([
+      { status: 'maybe', name: 'Bea' },
+      { status: 'yes', name: 'Zoe' },
+      { status: 'cancelled', name: 'Carl' },
+      { status: 'yes', name: 'Änne' },
+      { status: 'maybe', name: 'Ada' },
+    ])
+    vi.mocked(getDirectusClient).mockReturnValue({ request: mockRequest } as any)
+
+    const stats = await getRsvpStats('e1', null)
+    expect(stats.attendees).toEqual([
+      { name: 'Änne', status: 'yes' },
+      { name: 'Zoe', status: 'yes' },
+      { name: 'Ada', status: 'maybe' },
+      { name: 'Bea', status: 'maybe' },
+    ])
+  })
+
+  it('skips attendees without a name', async () => {
+    const mockRequest = vi.fn().mockResolvedValue([
+      { status: 'yes', name: '  ' }, { status: 'yes', name: null }, { status: 'yes', name: ' Alice ' },
+    ])
+    vi.mocked(getDirectusClient).mockReturnValue({ request: mockRequest } as any)
+
+    const stats = await getRsvpStats('e1', null)
+    expect(stats.attendees).toEqual([{ name: 'Alice', status: 'yes' }])
+    expect(stats.yes).toBe(3)
+  })
+
   it('isOverFull when total > capacity', async () => {
     const mockRequest = vi.fn().mockResolvedValue([
       { status: 'yes' }, { status: 'yes' }, { status: 'yes' },
