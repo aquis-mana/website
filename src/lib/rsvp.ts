@@ -9,6 +9,11 @@ export interface RsvpRecord {
   visitorToken: string
 }
 
+export interface RsvpAttendee {
+  name: string
+  status: 'yes' | 'maybe'
+}
+
 export interface RsvpStats {
   yes: number
   maybe: number
@@ -16,6 +21,8 @@ export interface RsvpStats {
   capacity: number | null
   isNearFull: boolean
   isOverFull: boolean
+  /** Names of everyone signed up, "yes" before "maybe", each group A→Z. */
+  attendees: RsvpAttendee[]
 }
 
 function mapRsvp(raw: {
@@ -89,13 +96,26 @@ export async function getRsvpStats(
   const items = await client.request(
     readItems('rsvps', {
       filter: { event_id: { _eq: eventId } },
-      fields: ['status'],
+      fields: ['status', 'name'],
     })
   )
 
   const yes = items.filter((r) => r.status === 'yes').length
   const maybe = items.filter((r) => r.status === 'maybe').length
   const total = yes + maybe
+
+  const collator = new Intl.Collator('de')
+  const attendees: RsvpAttendee[] = items
+    .filter((r): r is { status: 'yes' | 'maybe'; name: string } =>
+      r.status === 'yes' || r.status === 'maybe'
+    )
+    .map((r) => ({ name: (r.name ?? '').trim(), status: r.status }))
+    .filter((a) => a.name.length > 0)
+    .sort((a, b) =>
+      a.status === b.status
+        ? collator.compare(a.name, b.name)
+        : a.status === 'yes' ? -1 : 1
+    )
 
   let isNearFull = false
   let isOverFull = false
@@ -107,5 +127,5 @@ export async function getRsvpStats(
     isNearFull = !isOverFull && remaining <= threshold
   }
 
-  return { yes, maybe, total, capacity, isNearFull, isOverFull }
+  return { yes, maybe, total, capacity, isNearFull, isOverFull, attendees }
 }
