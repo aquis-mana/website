@@ -11,6 +11,7 @@ export default {
   'events.today': 'Heute',
   'events.upcoming': 'Anstehend',
   'events.other': 'Andere Veranstaltungen',
+  'events.recurring': 'wöchentlich',
   'events.rsvp': 'Anmelden',
   'events.attending': 'Teilnehmer',
   'events.capacity': 'Kapazität',
