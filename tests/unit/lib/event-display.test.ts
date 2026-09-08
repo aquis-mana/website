@@ -7,16 +7,22 @@ describe('gameTag', () => {
     expect(gameTag('TCG - Open Play')?.label).toBe('TCG')
   })
 
-  it('handles the en dash separator as well as the ASCII hyphen', () => {
-    expect(gameTag('MtG – Pauper Liga')?.label).toBe('MtG')
+  it('recognises an MtG format name anywhere in the title, no "MtG -" prefix required', () => {
+    expect(gameTag('Öcher Series - MtG Pauper')?.label).toBe('MtG')
+    expect(gameTag('Weekly Modern Night')?.label).toBe('MtG')
+    expect(gameTag('Commander Open House')?.label).toBe('MtG')
   })
 
-  it('special-cases the exact title "Brettspielabend"', () => {
-    expect(gameTag('Brettspielabend')?.label).toBe('Brettspiel')
+  it('tags anything mentioning Brettspiel as Brettspiele', () => {
+    expect(gameTag('Brettspielabend')?.label).toBe('Brettspiele')
+    expect(gameTag('offene Brettspielrunde')?.label).toBe('Brettspiele')
   })
 
-  it('returns null for combined or unrecognised titles', () => {
+  it('returns null when more than one game family matches (a combined event)', () => {
     expect(gameTag('Commander & TCG Open House + offene Brettspielrunde')).toBeNull()
+  })
+
+  it('returns null when no game family matches', () => {
     expect(gameTag('Mitgliederversammlung')).toBeNull()
   })
 
