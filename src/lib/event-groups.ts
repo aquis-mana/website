@@ -19,8 +19,11 @@ function dayKey(date: Date, timeZone: string): string {
  *
  * Recurring events (`seriesId !== null`) are deduped to their earliest future
  * instance — the club runs the same game nights every week, and only the next
- * occurrence is useful. One-off events are all kept. Events are grouped in the
- * given `timeZone` (Europe/Berlin for SSR); each list is sorted ascending.
+ * occurrence is useful. Dedup keys on the (normalised) title rather than the
+ * series id: "TCG - Open Play" runs Mon–Fri as five separate weekly Google
+ * events, and the members think of it as one thing. One-off events are all
+ * kept. Events are grouped in the given `timeZone` (Europe/Berlin for SSR);
+ * each list is sorted ascending.
  */
 export function groupEvents(
   events: CalendarEvent[],
@@ -33,19 +36,22 @@ export function groupEvents(
   const today: CalendarEvent[] = []
   const upcoming: CalendarEvent[] = []
   const other: CalendarEvent[] = []
-  const seenSeries = new Set<string>()
+  const seenRecurringTitles = new Set<string>()
+  const titleKey = (event: CalendarEvent) => event.title.trim().toLowerCase()
 
   for (const event of byDate) {
+    const isRecurring = event.seriesId !== null
+
     if (dayKey(event.date, timeZone) === todayKey) {
       today.push(event)
-      if (event.seriesId) seenSeries.add(event.seriesId)
+      if (isRecurring) seenRecurringTitles.add(titleKey(event))
       continue
     }
     if (event.date.getTime() < now.getTime()) continue // past, and not today
 
-    if (event.seriesId) {
-      if (seenSeries.has(event.seriesId)) continue
-      seenSeries.add(event.seriesId)
+    if (isRecurring) {
+      if (seenRecurringTitles.has(titleKey(event))) continue
+      seenRecurringTitles.add(titleKey(event))
       upcoming.push(event)
     } else {
       other.push(event)
