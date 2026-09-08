@@ -23,7 +23,7 @@ export const config = {
     return process.env.CALENDAR_SOURCE === 'google' ? 'google' : 'directus'
   },
   get eventLookaheadDays(): number {
-    return parseIntEnv(process.env.EVENT_LOOKAHEAD_DAYS, 7)
+    return parseIntEnv(process.env.EVENT_LOOKAHEAD_DAYS, 90)
   },
   get defaultEventCapacity(): number | null {
     return parseIntEnvOrNull(process.env.DEFAULT_EVENT_CAPACITY)

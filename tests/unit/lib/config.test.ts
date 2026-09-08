@@ -11,13 +11,13 @@ describe('config', () => {
     expect(config.calendarSource).toBe('google')
   })
 
-  it('eventLookaheadDays defaults to 7 and parses ints, ignoring garbage', () => {
+  it('eventLookaheadDays defaults to 90 and parses ints, ignoring garbage', () => {
     vi.stubEnv('EVENT_LOOKAHEAD_DAYS', '')
-    expect(config.eventLookaheadDays).toBe(7)
+    expect(config.eventLookaheadDays).toBe(90)
     vi.stubEnv('EVENT_LOOKAHEAD_DAYS', '3')
     expect(config.eventLookaheadDays).toBe(3)
     vi.stubEnv('EVENT_LOOKAHEAD_DAYS', 'lots')
-    expect(config.eventLookaheadDays).toBe(7)
+    expect(config.eventLookaheadDays).toBe(90)
   })
 
   it('defaultEventCapacity is null when unset/garbage, number otherwise', () => {

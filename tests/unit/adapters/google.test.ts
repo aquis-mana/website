@@ -97,7 +97,7 @@ describe('GoogleCalendarAdapter', () => {
     expect(events[0].capacity).toBe(30)
   })
 
-  it('limits the query to a 7-day window by default (timeMax = timeMin + 7d)', async () => {
+  it('limits the query to a 90-day window by default (timeMax = timeMin + 90d)', async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ items: [] }),
@@ -109,7 +109,24 @@ describe('GoogleCalendarAdapter', () => {
     const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string)
     const timeMin = new Date(url.searchParams.get('timeMin')!).getTime()
     const timeMax = new Date(url.searchParams.get('timeMax')!).getTime()
-    expect((timeMax - timeMin) / 86_400_000).toBe(7)
+    expect((timeMax - timeMin) / 86_400_000).toBe(90)
+  })
+
+  it('maps recurringEventId to seriesId, leaving one-off events null', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        items: [
+          { ...mockGoogleEvent, id: 'i1', recurringEventId: 'series-abc' },
+          { ...mockGoogleEvent, id: 'i2' },
+        ],
+      }),
+    } as Response)
+
+    const adapter = new GoogleCalendarAdapter()
+    const events = await adapter.getUpcomingEvents()
+    expect(events[0].seriesId).toBe('series-abc')
+    expect(events[1].seriesId).toBeNull()
   })
 
   it('honors EVENT_LOOKAHEAD_DAYS to size the window', async () => {

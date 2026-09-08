@@ -11,6 +11,7 @@ interface GoogleEventItem {
   description?: string
   start: { dateTime?: string; date?: string }
   location?: string
+  recurringEventId?: string
 }
 
 export function parseCapacity(description: string): { capacity: number | null; cleaned: string } {
@@ -32,6 +33,9 @@ function mapGoogleEvent(item: GoogleEventItem): CalendarEvent {
     imageUrl: null,
     capacity: resolveCapacity(capacity),
     capacityWarningThreshold: null,
+    // `singleEvents=true` expands recurrences into instances that all carry the
+    // parent's recurringEventId; a one-off event has no such field.
+    seriesId: item.recurringEventId ?? null,
   }
 }
 
@@ -48,7 +52,7 @@ export class GoogleCalendarAdapter implements CalendarAdapter {
     const timeMax = new Date(now.getTime() + lookaheadDays * 86_400_000).toISOString()
     const url =
       `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events` +
-      `?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&maxResults=50`
+      `?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&maxResults=250`
 
     log.debug('fetching upcoming events')
     const res = await fetch(url)

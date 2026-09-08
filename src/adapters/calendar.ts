@@ -12,6 +12,11 @@ export interface CalendarEvent {
   imageUrl: string | null
   capacity: number | null
   capacityWarningThreshold: number | null
+  /**
+   * Identifier shared by all instances of a recurring series, or `null` for a
+   * one-off event. The front page shows only the next instance per series.
+   */
+  seriesId: string | null
 }
 
 export interface CalendarAdapter {

@@ -39,6 +39,8 @@ describe('DirectusCalendarAdapter', () => {
     expect(events[0].title).toBe('MtG Friday')
     expect(events[0].date).toBeInstanceOf(Date)
     expect(events[0].capacity).toBe(20)
+    // Directus has no recurrence model — every event is a one-off.
+    expect(events[0].seriesId).toBeNull()
   })
 
   it('getEvent returns null when not found', async () => {

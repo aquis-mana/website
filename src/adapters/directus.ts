@@ -27,6 +27,9 @@ function mapEvent(raw: {
     imageUrl: raw.image ? `/cms-assets/${raw.image}` : null,
     capacity: resolveCapacity(raw.capacity),
     capacityWarningThreshold: raw.capacity_warning_threshold,
+    // The Directus schema has no recurrence model, so every event is a one-off.
+    // Recurring-series handling on the front page only applies to the Google source.
+    seriesId: null,
   }
 }
 
