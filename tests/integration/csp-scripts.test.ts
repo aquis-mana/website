@@ -56,7 +56,7 @@ beforeAll(async () => {
       HOST: '127.0.0.1',
       PORT: String(PORT),
       // No real backend: the adapter fails and events render empty, but the
-      // RsvpOverlay script is always present, which is all we need here.
+      // EventList script is always present, which is all we need here.
       CALENDAR_SOURCE: 'directus',
       DIRECTUS_URL: 'http://127.0.0.1:9',
     },

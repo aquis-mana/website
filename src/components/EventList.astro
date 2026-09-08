@@ -1,0 +1,79 @@
+---
+import { useTranslations } from '../i18n/index'
+import { groupEvents } from '../lib/event-groups'
+import { formatEventListTime, type EventTimeVariant } from '../lib/datetime'
+import type { CalendarEvent } from '../adapters/calendar'
+
+interface Props {
+  events: CalendarEvent[]
+  lang?: 'de' | 'en'
+}
+
+const { events, lang = 'de' } = Astro.props
+const t = useTranslations(lang)
+
+// The pod runs in UTC, so SSR must group and format with an explicit zone. The
+// club is in Aachen, so Europe/Berlin is the right one; the client script below
+// re-renders each <time> in the visitor's own zone.
+const TZ = 'Europe/Berlin'
+const groups = groupEvents(events, new Date(), TZ)
+
+const sections: { key: string; label: string; items: CalendarEvent[]; variant: EventTimeVariant }[] = [
+  { key: 'today', label: t('events.today'), items: groups.today, variant: 'time' },
+  { key: 'upcoming', label: t('events.upcoming'), items: groups.upcoming, variant: 'weekday' },
+  { key: 'other', label: t('events.other'), items: groups.other, variant: 'full' },
+]
+
+const isEmpty = sections.every((s) => s.items.length === 0)
+---
+
+<section class="w-full">
+  <h2 class="text-2xl font-bold text-navy mb-6">{t('events.heading')}</h2>
+
+  {isEmpty ? (
+    <p class="text-gray-500 text-center py-12">{t('events.empty')}</p>
+  ) : (
+    <div class="space-y-8">
+      {sections.filter((s) => s.items.length > 0).map((section) => (
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">
+            {section.label}
+          </h3>
+          <ul class="space-y-3">
+            {section.items.map((event) => (
+              <li
+                class="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm hover:border-blue-accent transition-colors"
+                data-event-id={event.id}
+              >
+                <span class="font-semibold text-navy">{event.title}</span>
+                <time
+                  datetime={event.date.toISOString()}
+                  data-event-list-time
+                  data-variant={section.variant}
+                  data-lang={lang}
+                  class="shrink-0 text-sm text-gray-500 tabular-nums whitespace-nowrap"
+                >
+                  {formatEventListTime(event.date, lang, section.variant, TZ)}
+                </time>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
+
+<script>
+  import { formatEventListTime, type EventTimeVariant } from '../lib/datetime'
+
+  // Re-render each event time in the visitor's own timezone. SSR rendered them
+  // in Europe/Berlin; passing no timeZone here uses the browser's local zone.
+  for (const el of document.querySelectorAll('time[data-event-list-time]')) {
+    const iso = el.getAttribute('datetime')
+    const variant = el.getAttribute('data-variant') as EventTimeVariant | null
+    if (!iso || !variant) continue
+    const lang = el.getAttribute('data-lang') === 'en' ? 'en' : 'de'
+    el.textContent = formatEventListTime(iso, lang, variant)
+  }
+</script>
