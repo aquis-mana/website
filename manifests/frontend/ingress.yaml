@@ -5,7 +5,7 @@ metadata:
   annotations:
     cert-manager.io/issuer: letsencrypt-ionos-prod
 spec:
-  ingressClassName: nginx-public
+  ingressClassName: traefik-public
   tls:
     - hosts: [www.aquis-mana.de]
       secretName: frontend-tls
